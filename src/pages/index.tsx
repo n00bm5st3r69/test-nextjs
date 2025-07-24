@@ -19,6 +19,7 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { AddCircle } from "@mui/icons-material";
+import { useRouter } from "next/router";
 
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchRecipes, toggleFavorite } from "@/store/recipesSlice";
@@ -27,6 +28,7 @@ import CustomCard from "@/components/Card";
 
 const RecipeList: React.FC = () => {
   const dispatch = useAppDispatch();
+  const route = useRouter();
   const { recipes } = useAppSelector((state) => state.recipes);
 
   const [sortBy, setSortBy] = useState<"title" | "date" | "">("");
@@ -50,6 +52,10 @@ const RecipeList: React.FC = () => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setFavoriteFilter(event.target.value as "yes" | "no" | "");
+  };
+
+  const handleOnNavigate = () => {
+    route.push("/add");
   };
 
   const filteredRecipes = useMemo<Recipe[]>(() => {
@@ -163,6 +169,7 @@ const RecipeList: React.FC = () => {
                     color: "white",
                     "&:hover": { bgcolor: "primary.dark" },
                   }}
+                  onClick={handleOnNavigate}
                 >
                   <AddCircle fontSize="large" />
                 </IconButton>

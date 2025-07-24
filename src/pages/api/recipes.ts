@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 
 export default function handler(
-  req: NextApiRequest,
+  _: NextApiRequest,
   res: NextApiResponse
 ) {
    const filePath = path.join(process.cwd(), 'src', 'data', 'recipes.json');
