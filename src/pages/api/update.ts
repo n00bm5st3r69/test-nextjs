@@ -29,6 +29,7 @@ export default async function handler(
     const id = getFieldValue(fields.id);
     const name = getFieldValue(fields.name);
     const email = getFieldValue(fields.email);
+    const title = getFieldValue(fields.title);
     const description = getFieldValue(fields.description);
     const ingredients = getFieldValue(fields.ingredients);
     const instructions = getFieldValue(fields.instructions);
@@ -44,27 +45,31 @@ export default async function handler(
       return res.status(404).json({ message: "Recipe not found" });
     }
 
-    const oldImagePath = recipes[recipeIndex].image;
+    const imagePath = recipes[recipeIndex].image;
 
-    let newImagePath = oldImagePath;
+    let newImagePath = imagePath;
 
     if (image) {
-      const fileName = `${Date.now()}_${image.originalFilename}`;
-      const newPath = path.join(imageDir, fileName);
+      const ext = image.originalFilename?.split(".").pop();
+      const baseName = path.basename(imagePath, path.extname(imagePath));
+      const version = Date.now();
+      const versionedFileName = `${baseName}_v${version}.${ext}`;
+      const newImageRelPath = `/images/${versionedFileName}`;
+      const newImageAbsPath = path.join(
+        process.cwd(),
+        "public",
+        "images",
+        versionedFileName
+      );
 
-      fs.copyFileSync(image.filepath, newPath);
-      newImagePath = `/images/${fileName}`;
+      fs.renameSync(image.filepath, newImageAbsPath);
 
-      if (oldImagePath !== newImagePath) {
-        const oldImageAbsPath = path.join(
-          process.cwd(),
-          "public",
-          oldImagePath
-        );
-        if (fs.existsSync(oldImageAbsPath)) {
-          fs.unlinkSync(oldImageAbsPath);
-        }
+      const oldImageAbsPath = path.join(process.cwd(), "public", imagePath);
+      if (fs.existsSync(oldImageAbsPath)) {
+        fs.unlinkSync(oldImageAbsPath);
       }
+
+      newImagePath = newImageRelPath;
     }
 
     recipes[recipeIndex] = {

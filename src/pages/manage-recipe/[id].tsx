@@ -114,7 +114,9 @@ const RecipeFormPage = () => {
 
       router.push("/");
     } catch (err: any) {
-      enqueueSnackbar(err?.message || "Action failed", {
+      const errMessage = typeof err === "string" ? err : "Action failed";
+      console.log(errMessage);
+      enqueueSnackbar(errMessage, {
         variant: "error",
       });
     }

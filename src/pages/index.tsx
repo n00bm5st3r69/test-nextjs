@@ -28,7 +28,9 @@ import CustomCard from "@/components/Card";
 const RecipeList: React.FC = () => {
   const dispatch = useAppDispatch();
   const route = useRouter();
-  const { recipes, searchString } = useAppSelector((state) => state.recipes);
+  const { recipe, recipes, searchString } = useAppSelector(
+    (state) => state.recipes
+  );
 
   const [sortBy, setSortBy] = useState<"title" | "date" | "">("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
@@ -36,7 +38,7 @@ const RecipeList: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchRecipes());
-  }, [dispatch]);
+  }, [dispatch, recipe]);
 
   const handleSortOrderChange = (event: SelectChangeEvent) => {
     setSortOrder(event.target.value as "asc" | "desc");

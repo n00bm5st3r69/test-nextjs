@@ -53,7 +53,7 @@ export const createRecipe = createAsyncThunk<
     return response.data.recipe;
   } catch (error: any) {
     return rejectWithValue(
-      error.response?.data?.message || "Failed to create recipe"
+      error?.response?.data?.message || "Failed to create recipe"
     );
   }
 });

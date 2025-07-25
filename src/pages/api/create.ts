@@ -45,12 +45,22 @@ export default async function handler(
       return res.status(400).json({ error: "Invalid email format" });
     }
 
-    const imageName = `${Date.now()}_${image.originalFilename}`;
+    const ext = image.originalFilename?.split(".").pop();
+    const imageName = `${String(title)}.${ext}`.replace(/\s+/g, "_");
     const imagePath = path.join(imageDir, imageName);
     fs.renameSync((image as File).filepath, imagePath);
 
     const data = fs.readFileSync(recipesFile, "utf-8");
     const recipes = JSON.parse(data);
+
+    const isDuplicateTitle = recipes.some(
+      (recipe: any) =>
+        recipe.title.toLowerCase() === String(title).toLowerCase()
+    );
+
+    if (isDuplicateTitle) {
+      return res.status(400).json({ message: "Title already exists" });
+    }
 
     const newRecipe = {
       id: recipes.length + 1,
