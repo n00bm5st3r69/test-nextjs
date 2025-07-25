@@ -19,6 +19,7 @@ import {
   updateRecipe,
   deleteRecipe,
   fetchRecipeById,
+  onClearRecipe,
 } from "@/store/recipesSlice";
 import { ArrowBack, Delete } from "@mui/icons-material";
 
@@ -83,6 +84,12 @@ const RecipeFormPage = () => {
       return () => URL.revokeObjectURL(previewUrl);
     }
   }, [imageFile]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(onClearRecipe());
+    };
+  }, [onClearRecipe, dispatch]);
 
   const onSubmit = async (data: RecipeFormData) => {
     const formData = new FormData();
@@ -159,6 +166,7 @@ const RecipeFormPage = () => {
                 color: "#666",
                 fontWeight: "bold",
                 userSelect: "none",
+                justifySelf: "center",
               }}
             >
               {!imagePreview && "Click to upload"}
@@ -208,6 +216,7 @@ const RecipeFormPage = () => {
                   placeholder={multiline ? "Type here..." : undefined}
                   size="small"
                   sx={{ backgroundColor: "#fff" }}
+                  disabled={name === "title" && isEditMode}
                 />
               </Grid>
             ))}

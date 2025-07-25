@@ -114,6 +114,9 @@ const recipesSlice = createSlice({
     onSearch: (state, action: PayloadAction<string>) => {
       state.searchString = action.payload;
     },
+    onClearRecipe: (state) => {
+      state.recipe = initialState.recipe;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -158,5 +161,5 @@ const recipesSlice = createSlice({
   },
 });
 
-export const { toggleFavorite, onSearch } = recipesSlice.actions;
+export const { toggleFavorite, onClearRecipe, onSearch } = recipesSlice.actions;
 export default recipesSlice.reducer;
