@@ -9,15 +9,15 @@ import {
 } from "@mui/material";
 import { Star, StarBorder } from "@mui/icons-material";
 
-type RecipeCardProps = {
+interface RecipeCardProps {
   title: string;
   description: string;
   author: string;
   date: string;
   image: string;
   isFavorite: boolean;
-  onToggleFavorite: () => void;
-};
+  onToggleFavorite: (e: React.MouseEvent<HTMLButtonElement>) => void;
+}
 
 const CustomCard: React.FC<RecipeCardProps> = ({
   title,
