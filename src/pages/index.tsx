@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
+  Checkbox,
   Typography,
   Grid,
   IconButton,
@@ -9,32 +10,29 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  RadioGroup,
   FormControlLabel,
-  Radio,
   Tooltip,
-  TextField,
   List,
   ListItem,
   SelectChangeEvent,
+  Button,
 } from "@mui/material";
 import { AddCircle } from "@mui/icons-material";
 import { useRouter } from "next/router";
 
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchRecipes, toggleFavorite } from "@/store/recipesSlice";
+import { fetchRecipes, onSearch, toggleFavorite } from "@/store/recipesSlice";
 import { Recipe } from "@/types/recipe";
 import CustomCard from "@/components/Card";
 
 const RecipeList: React.FC = () => {
   const dispatch = useAppDispatch();
   const route = useRouter();
-  const { recipes } = useAppSelector((state) => state.recipes);
+  const { recipes, searchString } = useAppSelector((state) => state.recipes);
 
   const [sortBy, setSortBy] = useState<"title" | "date" | "">("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
-  const [favoriteFilter, setFavoriteFilter] = useState<"yes" | "no" | "">("");
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [favoriteFilter, setFavoriteFilter] = useState<string[]>(["yes", "no"]);
 
   useEffect(() => {
     dispatch(fetchRecipes());
@@ -48,29 +46,47 @@ const RecipeList: React.FC = () => {
     setSortBy(event.target.value as "title" | "date");
   };
 
-  const handleFavoriteFilterChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFavoriteFilter(event.target.value as "yes" | "no" | "");
+  const handleOnNavigate = () => {
+    route.push("/manage-recipe/add");
   };
 
-  const handleOnNavigate = () => {
-    route.push("/add");
+  const handleOnManageRecipe = (id: number) => {
+    route.push(`/manage-recipe/${id}`);
+  };
+
+  const handleAddFavorite = (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    dispatch(toggleFavorite(id));
+  };
+
+  const handleFavoriteCheckboxChange = (value: string) => {
+    setFavoriteFilter((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+    );
+  };
+
+  const handleClearFilters = () => {
+    setSortBy("");
+    setSortOrder("");
+    setFavoriteFilter(["yes", "no"]);
+    dispatch(onSearch(""));
   };
 
   const filteredRecipes = useMemo<Recipe[]>(() => {
     let result = [...recipes];
 
-    if (searchTerm) {
+    if (searchString) {
       result = result.filter((r) =>
-        r.title.toLowerCase().includes(searchTerm.toLowerCase())
+        r.title.toLowerCase().includes(searchString.toLowerCase())
       );
     }
 
-    if (favoriteFilter === "yes") {
-      result = result.filter((r) => r.isFavorite);
-    } else if (favoriteFilter === "no") {
-      result = result.filter((r) => !r.isFavorite);
+    if (favoriteFilter.length < 2) {
+      if (favoriteFilter.includes("yes")) {
+        result = result.filter((r) => r.isFavorite);
+      } else if (favoriteFilter.includes("no")) {
+        result = result.filter((r) => !r.isFavorite);
+      }
     }
 
     if (sortOrder) {
@@ -89,25 +105,12 @@ const RecipeList: React.FC = () => {
     }
 
     return result;
-  }, [recipes, searchTerm, favoriteFilter, sortOrder, sortBy]);
+  }, [recipes, searchString, favoriteFilter, sortOrder, sortBy]);
 
   return (
     <Box display="flex" flexDirection="column" flexGrow={1}>
       <Grid container flexGrow={1}>
         <Grid size={{ xs: 12, md: 12, lg: 4 }} p={3} bgcolor="#f5f5f5">
-          <Typography variant="h6" gutterBottom>
-            Search
-          </Typography>
-          <TextField
-            fullWidth
-            variant="outlined"
-            size="small"
-            placeholder="Search by title"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ mb: 3 }}
-          />
-
           <Typography variant="h6" gutterBottom>
             Sort
           </Typography>
@@ -131,26 +134,47 @@ const RecipeList: React.FC = () => {
           </FormControl>
 
           <Typography variant="h6" gutterBottom>
-            Filter by Favorites
+            Favorites
           </Typography>
-          <RadioGroup
-            value={favoriteFilter}
-            onChange={handleFavoriteFilterChange}
-          >
-            <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-            <FormControlLabel value="no" control={<Radio />} label="No" />
-            <FormControlLabel value="" control={<Radio />} label="All" />
-          </RadioGroup>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={favoriteFilter.includes("yes")}
+                onChange={() => handleFavoriteCheckboxChange("yes")}
+              />
+            }
+            label="Yes"
+          />
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={favoriteFilter.includes("no")}
+                onChange={() => handleFavoriteCheckboxChange("no")}
+              />
+            }
+            label="No"
+          />
+          <Box flex={1} pt={3}>
+            <Button variant="contained" onClick={handleClearFilters}>
+              {" "}
+              Clear Filters
+            </Button>
+          </Box>
         </Grid>
 
         <Grid size={{ xs: 12, md: 12, lg: 8 }} p={4}>
           <Paper
             sx={{
               position: "relative",
-              maxHeight: "85vh",
+              height: "85vh",
               display: "flex",
               flexDirection: "column",
               overflow: "auto",
+              "::-webkit-scrollbar": { display: "none" },
+              "-ms-overflow-style": "none",
+              "scrollbar-width": "none",
+              p: 3,
             }}
           >
             <Box
@@ -175,21 +199,38 @@ const RecipeList: React.FC = () => {
                 </IconButton>
               </Tooltip>
             </Box>
-            <List disablePadding>
-              {filteredRecipes.map((recipe) => (
-                <ListItem key={recipe.id} disableGutters>
-                  <CustomCard
-                    title={recipe.title}
-                    description={recipe.description}
-                    author={recipe.name}
-                    date={recipe.dateAdded}
-                    image={recipe.image}
-                    isFavorite={recipe.isFavorite}
-                    onToggleFavorite={() => dispatch(toggleFavorite(recipe.id))}
-                  />
-                </ListItem>
-              ))}
-            </List>
+            {filteredRecipes.length ? (
+              <List disablePadding>
+                {filteredRecipes.map((recipe) => (
+                  <ListItem
+                    key={recipe.id}
+                    disableGutters
+                    onClick={() => handleOnManageRecipe(recipe.id)}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    <CustomCard
+                      title={recipe.title}
+                      description={recipe.description}
+                      author={recipe.name}
+                      date={recipe.dateAdded}
+                      image={recipe.image}
+                      isFavorite={recipe.isFavorite}
+                      onToggleFavorite={(e) => handleAddFavorite(e, recipe.id)}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              <Box
+                flexGrow={1}
+                p={3}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Typography variant="h4">No Record Found!</Typography>
+              </Box>
+            )}
           </Paper>
         </Grid>
       </Grid>
