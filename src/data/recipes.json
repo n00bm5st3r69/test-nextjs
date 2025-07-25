@@ -21,7 +21,7 @@
     "instructions": "test",
     "dateAdded": "March 1, 2024",
     "isFavorite": false,
-    "image": "/images/recipe_1.jpg"
+    "image": "/images/recipe_2.jpg"
   },
   {
     "id": 3,
@@ -33,42 +33,6 @@
     "instructions": "test",
     "dateAdded": "March 3, 2024",
     "isFavorite": false,
-    "image": "/images/recipe_1.jpg"
-  },
-  {
-    "id": 4,
-    "name": "Johnny",
-    "email": "test@email.com",
-    "title": "Recipe D",
-    "description": "A simple recipe app built with Next.js and Material-UI.",
-    "ingredients": "test",
-    "instructions": "test",
-    "dateAdded": "March 6, 2024",
-    "isFavorite": false,
-    "image": "/images/recipe_1.jpg"
-  },
-  {
-    "id": 5,
-    "name": "Johnny",
-    "email": "test@email.com",
-    "title": "Recipe E",
-    "description": "A simple recipe app built with Next.js and Material-UI.",
-    "ingredients": "test",
-    "instructions": "test",
-    "dateAdded": "March 1, 2024",
-    "isFavorite": false,
-    "image": "/images/recipe_1.jpg"
-  },
-  {
-    "id": 6,
-    "name": "Johnny",
-    "email": "test@email.com",
-    "title": "Recipe F",
-    "description": "A simple recipe app built with Next.js and Material-UI.",
-    "ingredients": "test",
-    "instructions": "test",
-    "dateAdded": "March 3, 2024",
-    "isFavorite": false,
-    "image": "/images/recipe_1.jpg"
+    "image": "/images/recipe_3.jpg"
   }
 ]
