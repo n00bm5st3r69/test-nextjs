@@ -1,21 +1,17 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import path from 'path';
-import fs from 'fs';
+import type { NextApiRequest, NextApiResponse } from "next";
+import path from "path";
+import fs from "fs";
 
-export default function handler(
-  _: NextApiRequest,
-  res: NextApiResponse
-) {
-   const filePath = path.join(process.cwd(), 'src', 'data', 'recipes.json');
+export default function handler(_: NextApiRequest, res: NextApiResponse) {
+  const filePath = path.join(process.cwd(), "src", "data", "recipes.json");
 
   try {
-    const fileContent = fs.readFileSync(filePath, 'utf8');
+    const fileContent = fs.readFileSync(filePath, "utf8");
     const recipes = JSON.parse(fileContent);
 
-    res.status(200).json(recipes)
+    res.status(200).json(recipes);
   } catch (error) {
-    console.error('Failed to read recipes.json:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Failed to read recipes.json:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 }
-
